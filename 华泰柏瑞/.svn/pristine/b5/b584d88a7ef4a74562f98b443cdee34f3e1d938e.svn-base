@@ -1,0 +1,72 @@
+//
+//  JRGlobal.m
+//  htbr
+//
+//  Created by aresoft on 15-4-7.
+//  Copyright (c) 2015年 宋金杰. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#define RGBCOLOR(r,g,b) [UIColor colorWithRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:1]
+#define RGBACOLOR(r,g,b,a) [UIColor colorWithRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:a]
+
+#define AppFrameHeight [[UIScreen mainScreen] applicationFrame].size.height
+#define AppFrameWidth [[UIScreen mainScreen] applicationFrame].size.width
+
+#define ScreenHeight [[UIScreen mainScreen] bounds].size.height
+#define ScreenWidth [[UIScreen mainScreen] bounds].size.width
+
+#define SWS(a)       (CGFloat)(a)/320.f*ScreenWidth          //设备屏幕宽度变大时候，（相对于iPhone4，5）宽度等比例拉伸
+#define SHS(a)        (CGFloat)(a)/480.f*ScreenHeight         //设备屏幕高度变大时候，（相对于iPhone4）高度等比例拉伸
+#define SuitableWidthFixedBothSide(a)   ScreenWidth - 2 * (a)                   //固定两边。中间拉伸
+#define SuitableXFromRight(a)           ScreenWidth - (a)                       //右对齐
+/**
+ *  是否能设置手势密码
+ */
+#define WHETHERCANLOGINGESTUREPASSWORD @"whethercanLogingesturepassword"
+/**
+ *  是否有手势密码(设置)
+ */
+#define WHETHERGESTURELOCK @"whetherGestureLock"
+/**
+ *  是否是登陆其他账户按钮
+ */
+#define WHETHERLOGINOTHERBUTTON @"whetherLoginOtherButton"
+/**
+ *  最终的手势密码存储key
+ */
+#define gestureFinalSaveKey @"gestureFinalSaveKey"
+/**
+ *  是否隐藏手势路径
+ */
+#define WHETHER_HIDE_GESTUREPATH @"whetherHideGesturePath"
+/**
+ *  登陆成功后用户返回信息保存路径
+ */
+#define UserInfoSavePath @"UserInfoLoginFile"
+
+
+#define TOP_VIEW_HEIGHT             106 + 0.5f
+#define TAB_BAR_HEIGHT              43.5
+
+
+#define NORMAL_TEXT_SIZE_MAX        14
+
+#define ALERT_TITLE                 @"温馨提示"
+
+#define NSNOTIFICATION_UPDATE_INFO                  @"NSNOTIFICATION_UPDATE_INFO"
+#define NSNOTIFICATION_SERVER_VERSION               @"NSNOTIFICATION_SERVER_VERSION"
+
+
+
+#define URL_CHECK_VERSION    @"http://itunes.apple.com/lookup?id=995905577"
+#define APP_DOWNLOAD_URL     @"https://itunes.apple.com/us/app/hua-tai-bai-rui-ji-jin/id995905577?mt=8&ign-mpt=uo%3D4"
+#define kApplicationDidReceieveRemoteNotification   @"kApplicationDidReceieveRemoteNotification"//激光推送通知
+
+#define UMENG_APPKEY         @"55238ba7fd98c5f9cb000d5e"
+
+#define URL_PATH         @"http://172.16.9.118/AppIndex.aspx"//测试地址
+//#define URL_PATH       @"http://172.16.2.61/AppIndex.aspx"//测试地址
+
+//#define URL_PATH      @"https://m.huatai-pb.com"//正式地址

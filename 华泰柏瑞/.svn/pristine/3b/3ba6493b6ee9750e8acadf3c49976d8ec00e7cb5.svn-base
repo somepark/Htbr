@@ -1,0 +1,50 @@
+//
+//  JRBaseViewController.m
+//  htbr
+//
+//  Created by aresoft on 15-4-7.
+//  Copyright (c) 2015年 宋金杰. All rights reserved.
+//
+
+#import "JRBaseViewController.h"
+
+@interface JRBaseViewController ()
+
+@end
+
+@implementation JRBaseViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)loadView
+{
+    UIView *baseView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
+    baseView.backgroundColor = [UIColor backgroundColor];
+    self.view = baseView;
+    
+    self.navigationController.navigationBarHidden = YES;
+    
+//    if ([JRCommon isIOS7]) {
+//        self.automaticallyAdjustsScrollViewInsets = NO;
+//    }
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+@end

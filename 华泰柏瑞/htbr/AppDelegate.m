@@ -1,0 +1,163 @@
+//
+//  AppDelegate.m
+//  htbr
+//
+//  Created by aresoft on 15-4-7.
+//  Copyright (c) 2015年 宋金杰. All rights reserved.
+//
+
+#import "AppDelegate.h"
+#import "JRHtbrNavigationViewController.h"
+#import "JPUSHService.h"
+#import <UserNotifications/UserNotifications.h>
+
+#import <UMMobClick/MobClick.h>
+#import "JRHtbrSharesViewController.h"
+#import "UMSocial.h"
+#import "UMSocialWechatHandler.h"
+#import "UMSocialQQHandler.h"
+//#import "UMSocialSinaHandler.h"
+@interface AppDelegate ()<JPUSHRegisterDelegate>
+
+@end
+
+@implementation AppDelegate
+
+- (void)umengTrack
+{
+    //    [MobClick setCrashReportEnabled:NO]; // 如果不需要捕捉异常，注释掉此行
+    //[MobClick setLogEnabled:YES];  // 打开友盟sdk调试，注意Release发布时需要注释掉此行,减少io消耗
+    UMConfigInstance.appKey = UMENG_APPKEY;
+    UMConfigInstance.channelId = @"APP Store";
+    UMConfigInstance.ePolicy =BATCH;
+    [MobClick setAppVersion:XcodeAppVersion];
+    [MobClick setEncryptEnabled:YES];
+    [MobClick startWithConfigure:UMConfigInstance];//配置以上参数后调用此方法初始化SDK！
+}
+
+- (void)onlineConfigCallBack:(NSNotification *)note {
+    
+    NSLog(@"online config has fininshed and note = %@", note.userInfo);
+}
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // Override point for customization after application launch.
+    
+    [self umengTrack];
+    
+    [self jPush:launchOptions];
+    // Required
+//#if __IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_7_1
+    
+    UIWindow *window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window = window;
+    self.window.backgroundColor = [UIColor whiteColor];
+    [self.window makeKeyAndVisible];
+    self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[JRHtbrNavigationViewController alloc] init]];
+    application.statusBarStyle = UIStatusBarStyleDefault;
+        
+    [UMSocialData setAppKey:UMENG_APPKEY];
+     
+    //设置微信AppId，设置分享url，默认使用友盟的网址
+    [UMSocialWechatHandler setWXAppId:@"wx9983a9281461984d" appSecret:@"6ad168cac4e31ec538d3b32f3ca7d4b4" url:@"https://m.huatai-pb.com/"];
+    
+    //设置分享到QQ空间的应用Id，和分享url 链接
+    [UMSocialQQHandler setQQWithAppId:@"1104508936" appKey:@"TDP3XKdkE3IImb30" url:@"https://m.huatai-pb.com/"];
+    
+    return YES;
+}
+-(void)jPush:(NSDictionary *)launchOptions{
+    //Required
+    //notice: 3.0.0及以后版本注册可以这样写，也可以继续用之前的注册方式
+    JPUSHRegisterEntity * entity = [[JPUSHRegisterEntity alloc] init];
+    entity.types = JPAuthorizationOptionAlert|JPAuthorizationOptionBadge|JPAuthorizationOptionSound;
+    if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0) {
+        // 可以添加自定义categories
+        // NSSet<UNNotificationCategory *> *categories for iOS10 or later
+        // NSSet<UIUserNotificationCategory *> *categories for iOS8 and iOS9
+    }
+    [JPUSHService registerForRemoteNotificationConfig:entity delegate:self];
+    
+    
+    // Required
+    // init Push
+    // notice: 2.1.5版本的SDK新增的注册方法，改成可上报IDFA，如果没有使用IDFA直接传nil
+    // 如需继续使用pushConfig.plist文件声明appKey等配置内容，请依旧使用[JPUSHService setupWithOption:launchOptions]方式初始化。
+    NSString *pushPlist = [[NSBundle mainBundle] pathForResource:@"PushConfig" ofType:@"plist"];
+    NSMutableDictionary *pushDic = [[NSMutableDictionary alloc] initWithContentsOfFile:pushPlist];
+
+    [JPUSHService setupWithOption:launchOptions appKey:[pushDic objectForKey:@"APP_KEY"]
+                          channel:[pushDic objectForKey:@"CHANNEL"]
+                 apsForProduction:YES
+            advertisingIdentifier:nil];
+}
+- (void)applicationWillResignActive:(UIApplication *)application {
+    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
+    // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+}
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
+    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+    // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+
+}
+- (void)applicationWillTerminate:(UIApplication *)application {
+    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    // Saves changes in the application's managed object context before the application terminates.
+}
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    /// Required - 注册 DeviceToken
+    [JPUSHService registerDeviceToken:deviceToken];
+}
+#pragma mark- JPUSHRegisterDelegate
+- (void)jpushNotificationCenter:(UNUserNotificationCenter *)center  willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(NSInteger))completionHandler {
+    // Required
+    NSDictionary * userInfo = notification.request.content.userInfo;
+    if([notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
+        [JPUSHService handleRemoteNotification:userInfo];
+        NSMutableDictionary *x = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+        [x setObject:@(0) forKey:@"state"];
+        [UIApplication sharedApplication].applicationIconBadgeNumber=0;
+        [[NSNotificationCenter defaultCenter] postNotificationName:kApplicationDidReceieveRemoteNotification object:nil userInfo:x];
+    }
+    completionHandler(UNNotificationPresentationOptionBadge|UNNotificationPresentationOptionSound|UNNotificationPresentationOptionAlert); // 需要执行这个方法，选择是否提醒用户，有Badge、Sound、Alert三种类型可以设置
+}
+// iOS 10 Support
+- (void)jpushNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler {
+    // Required
+    NSDictionary * userInfo = response.notification.request.content.userInfo;
+    if([response.notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
+        [JPUSHService handleRemoteNotification:userInfo];
+        NSMutableDictionary *x = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+        [x setObject:@(1) forKey:@"state"];
+        [UIApplication sharedApplication].applicationIconBadgeNumber=0;
+        [[NSNotificationCenter defaultCenter] postNotificationName:kApplicationDidReceieveRemoteNotification object:nil userInfo:x];
+    }
+    completionHandler();  // 系统要求执行这个方法
+}
+
+// Required, iOS 7-10 Support，这里忽略iOS 6 Support
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    NSMutableDictionary *x = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+    [x setObject:@(application.applicationState) forKey:@"state"];
+    [JPUSHService handleRemoteNotification:userInfo];
+    [UIApplication sharedApplication].applicationIconBadgeNumber=0;
+        [[NSNotificationCenter defaultCenter] postNotificationName:kApplicationDidReceieveRemoteNotification object:nil userInfo:x];
+    completionHandler(UIBackgroundFetchResultNewData);
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    //Optional
+    NSLog(@"did Fail To Register For Remote Notifications With Error: %@", error);
+}
+@end

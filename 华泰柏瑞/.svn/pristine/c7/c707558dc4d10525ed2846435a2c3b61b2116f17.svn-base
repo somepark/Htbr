@@ -1,0 +1,28 @@
+<html>
+	<title>
+	test
+	</title>
+	
+	<script type="text/javascript">
+        function sendCommand(cmd){
+            var url="toapp:"+cmd;
+            document.location = url;
+        }
+    function share()
+    {
+        if (typeof(oc_objc) == "undefined" || typeof(oc_objc) == "") {
+            
+        } else if (oc_objc == "inapp") {
+            sendCommand("goshare");
+        }
+        
+    }
+	</script>
+	<body>
+		<input type = "button" value = "test button on Click" width = "200" height = "40" onclick = "share()"></input>
+        <div class="cy2 fl ovh ml1 mt1" onclick="share()">
+            <p class="fl cy3"><img src="./resource/images/20.png"></p>
+                <span>share</span>
+                </div>
+	<body>
+</html>

@@ -1,0 +1,21 @@
+//
+//  HTBR-Prefix.pch
+//  htbr
+//
+//  Created by aresoft on 15-4-7.
+//  Copyright (c) 2015年 宋金杰. All rights reserved.
+//
+
+#ifndef htbr_HTBR_Prefix_pch
+#define htbr_HTBR_Prefix_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#endif
+
+#import "JRGlobal.h"
+#import "JRCommon.h"
+#import "UIColor+HTBR.h"
+#import "UIFont+Custome.h"
+#import "JRHttpConnect.h"

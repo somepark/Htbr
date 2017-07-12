@@ -1,0 +1,219 @@
+//
+//  JRHtbrNavigationView.m
+//  htbr
+//
+//  Created by aresoft on 15-4-7.
+//  Copyright (c) 2015年 宋金杰. All rights reserved.
+//
+
+#import "JRHtbrNavigationView.h"
+#define IS_IPHONE_4 (fabs((double)[[UIScreen mainScreen] bounds].size.height - (double )480) < DBL_EPSILON )
+#define IS_IPHONE_5 (fabs((double)[[UIScreen mainScreen] bounds].size.height - (double )568) < DBL_EPSILON )
+#define IS_IPHONE_6 (fabs((double)[[UIScreen mainScreen] bounds].size.height - (double )667) < DBL_EPSILON )
+#define IS_IPHONE_6_PLUS (fabs((double)[[UIScreen mainScreen] bounds].size.height - (double )960) < DBL_EPSILON )
+
+
+@interface JRHtbrNavigationView()<UIWebViewDelegate>
+@property (nonatomic,strong) MBProgressHUD *hud;
+@property (nonatomic, strong) UIWebView *webView;
+@property (nonatomic,strong)UIImageView *imageView;
+@end
+
+@implementation JRHtbrNavigationView
+
+- (id)initWithFrame:(CGRect)frame delegate:(id)delegate
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        //TODO customer inilization
+        self.delegate = delegate;
+        [self setStautsColor:[UIColor clearColor]];
+        [self setBarContent];
+        [self initViews];
+    }
+    return self;
+}
+
+- (void)setBarContent
+{
+    self.bar.hidden = YES;
+}
+
+- (void)initViews
+{
+    NSString *bgStr = @"";
+    if (IS_IPHONE_4) {
+        bgStr = @"bg640X960";
+    }else if (IS_IPHONE_5){
+        bgStr = @"bg640x1136";
+    }else if (IS_IPHONE_6){
+        bgStr = @"bg750x1334";
+    }else{
+        bgStr = @"bg1242x2208";
+    }
+    //    self.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:bgStr]];
+    
+    _webView = [[UIWebView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    CGRect frame = self.webView.frame;
+    frame.origin.y += 20;
+    frame.size.height -= 20;
+    self.webView.frame=frame;
+    self.webView.scrollView.bounces = NO;
+    self.webView.scalesPageToFit = YES;
+    NSURL *url = [NSURL URLWithString:URL_PATH];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    [self.webView loadRequest:request];
+    self.webView.delegate = self;
+    
+    _webView.backgroundColor = [UIColor clearColor];
+    _webView.opaque = NO;
+//    [_webView setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:bgStr]]];
+    
+    [self addSubview:self.webView];
+    
+//    UIPanGestureRecognizer *recognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+//    [self.webView addGestureRecognizer:recognizer];
+    UISwipeGestureRecognizer *swipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipe:)];
+    [self.webView addGestureRecognizer:swipeRecognizer];
+    self.webView.userInteractionEnabled = YES;
+    
+    //设置背景图片
+    UIImage *image = [UIImage imageNamed:bgStr];
+     _imageView= [[UIImageView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    _imageView.image = image;
+    [self addSubview:_imageView];
+
+}
+
+#pragma mark - SEL
+- (void)buttonOnClick
+{
+    if (self.delegate) {
+        [self.delegate goShares];
+    }
+}
+
+- (void)swipe:(UISwipeGestureRecognizer *)recognizer
+{
+    if (recognizer.direction == UISwipeGestureRecognizerDirectionRight) {
+        [self.webView goBack];
+    }
+}
+
+- (void)handlePan:(UIPanGestureRecognizer *)recognizer
+{
+    CGFloat startPoint_X = 0.0;
+    CGFloat endPoint_X;
+    switch (recognizer.state) {
+        case UIGestureRecognizerStateBegan:
+        {
+            startPoint_X = [recognizer locationInView:self.window].x;
+            break;
+        }
+            
+        case UIGestureRecognizerStateChanged:
+        {
+            endPoint_X = [recognizer locationInView:self.window].x;
+            break;
+        }
+            
+        case UIGestureRecognizerStateEnded:
+        {
+            endPoint_X = [recognizer locationInView:self.window].x;
+            if (endPoint_X > startPoint_X) {
+                //向右侧滑动
+                UIAlertView *alerView = [[UIAlertView alloc] initWithTitle:@"测试" message:@"应该返回" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                [alerView show];
+                [self.webView goBack];
+            }
+            break;
+        }
+            
+        case UIGestureRecognizerStateCancelled:
+        {
+            //手势取消
+            NSLog(@"手势取消");
+            UIAlertView *alerView = [[UIAlertView alloc] initWithTitle:@"测试" message:@"手势取消" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            [alerView show];
+            break;
+        }
+            
+        case UIGestureRecognizerStateFailed:
+        {
+            //手势失败
+            NSLog(@"手势失败");
+            UIAlertView *alerView = [[UIAlertView alloc] initWithTitle:@"测试" message:@"手势失败" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            [alerView show];
+            break;
+        }
+            
+        case UIGestureRecognizerStatePossible:
+        {
+            NSLog(@"手势可能");
+            UIAlertView *alerView = [[UIAlertView alloc] initWithTitle:@"测试" message:@"手势可能" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            [alerView show];
+            break;
+        }
+    }
+}
+
+#pragma mark - UIWebViewDelegate
+-(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+{
+    NSString *requestString = [[request URL] absoluteString];
+    NSArray *components = [requestString componentsSeparatedByString:@":"];
+    NSLog(@"%@",requestString);
+    if ([components count] == 2 && [(NSString *)[components objectAtIndex:0] isEqualToString:@"toapp"]) {
+        if([(NSString *)[components objectAtIndex:1] isEqualToString:@"goshare"])
+        {
+            [self buttonOnClick];
+        }
+        return NO;
+    }
+    return YES;
+}
+
+
+- (void)webViewDidStartLoad:(UIWebView *)webView
+{
+    NSLog(@"开始加载");
+    //TODO 开始动画
+    
+    if (!_hud) {
+        _hud= [MBProgressHUD showHUDAddedTo:self  animated:YES];
+    }
+    
+    self.hud.mode = MBProgressHUDModeIndeterminate;
+    self.hud.labelText = @"正在加载...";
+    self.hud.margin = 10.f;
+    self.hud.yOffset = 30.f;
+   
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+    NSLog(@"加载完成");
+    //TODO url加载完成后结束动画
+    [self setStautsColor:[UIColor statusBackgroundColor]];
+    [_imageView removeFromSuperview];
+    _imageView = nil;
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
+//    self.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"nil"]];
+    
+    
+    self.hud.removeFromSuperViewOnHide = YES;
+    [self.hud hide:YES];
+    self.hud = nil;
+    
+    [webView stringByEvaluatingJavaScriptFromString:@"window.oc_objc = 'inapp';"];
+}
+
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
+{
+    self.hud.removeFromSuperViewOnHide = YES;
+    [self.hud hide:YES];
+    self.hud = nil;
+    NSLog(@"失败");
+}
+
+@end
